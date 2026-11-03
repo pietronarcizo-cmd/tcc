@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel ESP – SENAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--verm:#C8102E;--verm-esc:#7F0A1E;--bg:#F6F1F1;--card:#fff;--texto:#241415;--suave:#6B5557;--linha:#E3D6D7;
+--ok:#1E8E4E;--at:#C77700;--cr:#D91E2B;--ok-bg:#E3F4EA;--at-bg:#FCEFD6;--cr-bg:#FBE1E3;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#1A0D0F;--card:#2A1518;--texto:#F5E9EA;--suave:#C4A5A8;--linha:#4A2A2E;
+--ok:#4CCB85;--at:#F0A93B;--cr:#FF6B73;--ok-bg:#12372A;--at-bg:#3A2D12;--cr-bg:#4A1A20;color-scheme:dark}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--texto);font-family:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.4}
+header{background:var(--verm);color:#fff;border-bottom:6px solid var(--verm-esc)}
+.w{max-width:1100px;margin:0 auto;padding:0 20px}
+.topo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:16px;padding-bottom:16px}
+.marca{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:2.1rem;letter-spacing:.04em;background:#fff;color:var(--verm);padding:0 12px;line-height:1.15;border-radius:2px}
+.tit{flex:1;min-width:200px}.tit h1{margin:0;font:600 1.6rem "Barlow Condensed","Arial Narrow",sans-serif}.tit p{margin:0;opacity:.85;font-size:.95rem}
+.st{display:flex;align-items:center;gap:8px;font-size:.92rem}.dot{width:11px;height:11px;border-radius:50%;background:#bbb}.dot.on{background:#7CFFB0}
+.barra{background:var(--verm-esc);color:#fff}.barra .w{padding-top:12px;padding-bottom:12px}
+.modos{display:flex;gap:8px;flex-wrap:wrap}
+button,input{font:inherit}
+button{cursor:pointer;border:1px solid currentColor;background:transparent;color:inherit;padding:7px 14px;border-radius:4px;font-weight:500}
+.modos button[aria-pressed=true]{background:#fff;color:var(--verm);border-color:#fff}
+button:focus-visible,input:focus-visible{outline:3px solid #FFD24D;outline-offset:2px}
+.painel{display:none;margin-top:12px;gap:8px;flex-wrap:wrap;align-items:flex-end}.painel.ativo{display:flex}
+.painel label{display:flex;flex-direction:column;font-size:.8rem;gap:2px}
+.painel input{padding:6px 8px;border-radius:4px;border:1px solid #fff5;background:#fff;color:#241415;width:150px}
+.painel .nota{font-size:.85rem;opacity:.85;flex-basis:100%}
+.painel .go{background:#fff;color:var(--verm);border-color:#fff;font-weight:600}
+main{padding-top:20px;padding-bottom:36px}
+.resumo{display:flex;gap:12px;padding:13px 18px;border-radius:6px;border-left:8px solid var(--ok);background:var(--ok-bg);margin-bottom:18px;font-weight:600}
+.resumo.at{border-color:var(--at);background:var(--at-bg)}.resumo.cr{border-color:var(--cr);background:var(--cr-bg)}.resumo small{margin-left:auto;font-weight:400;color:var(--suave)}
+.grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--linha);border-top:5px solid var(--verm);border-radius:6px;padding:14px 16px}
+.card.at{border-top-color:var(--at)}.card.cr{border-top-color:var(--cr)}
+.card h2{margin:0;font-size:1rem;font-weight:600;color:var(--suave);display:flex;justify-content:space-between;align-items:center}
+.chip{font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--ok-bg);color:var(--ok)}
+.at .chip{background:var(--at-bg);color:var(--at)}.cr .chip{background:var(--cr-bg);color:var(--cr)}
+.val{font:700 3.2rem/1.05 "Barlow Condensed","Arial Narrow",sans-serif;margin:6px 0 0;font-variant-numeric:tabular-nums}.val span{font-size:1.3rem;font-weight:600;color:var(--suave);margin-left:6px}
+.faixa{font-size:.83rem;color:var(--suave);margin:2px 0 0}
+section.bloco{background:var(--card);border:1px solid var(--linha);border-radius:6px;padding:16px 18px;margin-top:18px}
+section.bloco h2{margin:0 0 4px;font:600 1.35rem "Barlow Condensed","Arial Narrow",sans-serif;color:var(--verm)}
+.leg{display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem;margin:6px 0 8px}.leg i{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:6px;vertical-align:middle}
+canvas{width:100%;height:300px;display:block}
+.nota2{font-size:.8rem;color:var(--suave);margin:4px 0 0}
+.acoes{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.acoes button{color:var(--verm);border-color:var(--verm)}
+.rolar{overflow-x:auto;max-height:380px;overflow-y:auto;border:1px solid var(--linha);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.92rem}
+th,td{padding:6px 12px;text-align:right;border-bottom:1px solid var(--linha);white-space:nowrap}th:first-child,td:first-child{text-align:left}
+th{position:sticky;top:0;background:var(--verm);color:#fff;font-weight:600}
+td.at{color:var(--at);font-weight:600}td.cr{color:var(--cr);font-weight:600}
+</style>
+</head>
+<body>
+<header><div class="w topo">
+  <div class="marca" aria-label="SENAI">SENAI</div>
+  <div class="tit"><h1>Monitoramento do equipamento</h1><p>Leituras do ESP32 em tempo real</p></div>
+  <div class="st"><span class="dot" id="dot"></span><span id="stx">Desconectado</span></div>
+</div></header>
+
+<div class="barra"><div class="w">
+  <div class="modos" id="modos">
+    <button type="button" data-m="usb" aria-pressed="false">USB (cabo)</button>
+    <button type="button" data-m="wifi" aria-pressed="false">Wi-Fi (internet)</button>
+    <button type="button" data-m="sim" aria-pressed="true">Simulação</button>
+  </div>
+  <div class="painel" id="p-usb">
+    <button type="button" class="go" id="usbBtn">Conectar ESP</button>
+    <span class="nota">Use Chrome ou Edge no computador, feche o Monitor Serial da Arduino IDE e escolha a porta do ESP (115200 baud).</span>
+  </div>
+  <div class="painel" id="p-wifi">
+    <button type="button" class="go" id="wBtn">Iniciar leitura</button>
+    <span class="nota">O ESP envia as leituras pela internet para este site (a cada 2 s). Se ele estiver desligado ou sem Wi-Fi, o painel avisa que não há dados novos.</span>
+  </div>
+</div></div>
+
+<main class="w">
+  <div class="resumo" id="resumo"><span id="rtx">Aguardando dados</span><small id="hora">–</small></div>
+  <div class="grade" id="grade"></div>
+
+  <section class="bloco">
+    <h2>Gráfico das leituras</h2>
+    <div class="leg" id="leg"></div>
+    <canvas id="graf" role="img" aria-label="Gráfico de linhas com temperatura, vibração, tensão e corrente"></canvas>
+    <p class="nota2">Cada linha usa a própria escala (0 a 100% da faixa do sensor), para as quatro caberem juntas. Os valores reais estão nos cards e no histórico.</p>
+  </section>
+
+  <section class="bloco">
+    <h2>Leituras que exigem atenção</h2>
+    <p class="nota2" id="alResumo">Nenhum alerta registrado.</p>
+    <div class="acoes"><button type="button" id="bAlLimpa">Limpar alertas</button></div>
+    <div class="rolar"><table>
+      <thead><tr><th>Início</th><th>Sensor</th><th>Nível</th><th>Valor ao iniciar</th><th>Pico</th><th>Limite ultrapassado</th><th>Situação</th></tr></thead>
+      <tbody id="tbAl"></tbody>
+    </table></div>
+  </section>
+
+  <section class="bloco">
+    <h2>Histórico dos valores</h2>
+    <div class="acoes">
+      <button type="button" id="bLog">Carregar log.txt do cartão SD</button>
+      <button type="button" id="bCsv">Exportar CSV</button>
+      <button type="button" id="bLimpa">Limpar</button>
+      <input type="file" id="arq" accept=".txt,.csv" hidden>
+    </div>
+    <div class="rolar"><table>
+      <thead><tr><th>Momento</th><th>Temperatura (°C)</th><th>Vibração (g)</th><th>Tensão (V)</th><th>Corrente (A)</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table></div>
+    <p class="nota2" id="cont">0 registros</p>
+  </section>
+</main>
+
+<script>
+const NOM = 220; // tensão nominal da sua rede (127 ou 220)
+const S = [
+ {k:'temperatura',n:'Temperatura',u:'°C',d:1,cor:'#F28C28',min:0,max:100,f:'Normal até 60 °C',a:v=>v>80?2:v>60?1:0,rx:/^temp/i,sim:[25,45]},
+ {k:'vibracao',n:'Vibração',u:'g',d:3,cor:'#2E86DE',min:0,max:1.5,f:'Normal até 0,3 g',a:v=>v>.6?2:v>.3?1:0,rx:/^vibra/i,sim:[0,.4]},
+ {k:'tensao',n:'Tensão',u:'V',d:1,cor:'#8E44AD',min:0,max:NOM*1.3,f:'Normal ±10% de '+NOM+' V',a:v=>{const x=Math.abs(v-NOM)/NOM;return x>.15?2:x>.1?1:0},rx:/^tens/i,sim:[NOM*.95,NOM*1.05]},
+ {k:'corrente',n:'Corrente',u:'A',d:2,cor:'#1E9E5A',min:0,max:15,f:'Normal até 10 A',a:v=>v>13?2:v>10?1:0,rx:/^corrente/i,sim:[1,9]}
+];
+const C = ['','at','cr'], ROT = ['Normal','Atenção','Crítico'];
+const $ = id => document.getElementById(id);
+const fmt = (v,d) => Number.isFinite(v) ? v.toFixed(d).replace('.',',') : '–';
+let dados = [], ultima = 0, modo = 'sim', alertas = [], abertos = {};
+
+$('grade').innerHTML = S.map(s => `<article class="card" id="c-${s.k}"><h2>${s.n}<span class="chip">Normal</span></h2>
+ <p class="val"><b>–</b><span>${s.u}</span></p><p class="faixa">${s.f}</p></article>`).join('');
+$('leg').innerHTML = S.map(s => `<span><i style="background:${s.cor}"></i>${s.n}</span>`).join('');
+
+function registrar(d, rotulo, t){
+  const tt = t ?? Date.now(), ag = new Date(tt);
+  const r = {t: tt, label: rotulo || ag.toLocaleTimeString('pt-BR'), when: rotulo || ag.toLocaleString('pt-BR')};
+  S.forEach(s => r[s.k] = typeof d[s.k] === 'number' ? d[s.k] : NaN);
+  dados.push(r); if (dados.length > 3000) dados.shift();
+  avaliar(r);
+  ultima = Date.now(); render();
+}
+
+const LIM = {temperatura:['acima de 60 °C','acima de 80 °C'], vibracao:['acima de 0,3 g','acima de 0,6 g'],
+  tensao:['fora de ±10% de '+NOM+' V','fora de ±15% de '+NOM+' V'], corrente:['acima de 10 A','acima de 13 A']};
+const dur = ms => { const s = Math.round(ms/1000); return s < 60 ? s + ' s' : Math.floor(s/60) + ' min ' + (s%60) + ' s'; };
+
+function avaliar(r){
+  S.forEach(s => {
+    const v = r[s.k]; if (!Number.isFinite(v)) return;
+    const e = s.a(v), ab = abertos[s.k], dv = s.k === 'tensao' ? Math.abs(v-NOM) : v;
+    if (e > 0){
+      if (!ab){ const a = {s, t:r.t, when:r.when, nivel:e, ini:v, pico:v, dv, fimW:null, dur:null}; alertas.push(a); abertos[s.k] = a; }
+      else { ab.nivel = Math.max(ab.nivel, e); if (dv > ab.dv){ ab.dv = dv; ab.pico = v; } }
+    } else if (ab){ ab.fimW = r.when; ab.dur = r.t - ab.t; delete abertos[s.k]; }
+  });
+}
+function tabAlertas(){
+  $('tbAl').innerHTML = alertas.slice(-200).reverse().map(a => `<tr><td>${a.when}</td><td>${a.s.n}</td><td class="${C[a.nivel]}">${ROT[a.nivel]}</td>
+    <td>${fmt(a.ini, a.s.d)} ${a.s.u}</td><td>${fmt(a.pico, a.s.d)} ${a.s.u}</td><td>${LIM[a.s.k][a.nivel-1]}</td>
+    <td>${a.fimW ? 'Normalizou (' + a.fimW + (a.dur != null ? ', durou ' + dur(a.dur) : '') + ')' : 'Em andamento'}</td></tr>`).join('');
+  const n = Object.keys(abertos).length;
+  $('alResumo').textContent = alertas.length ? alertas.length + ' ocorrência(s) registrada(s), ' + n + ' em andamento agora.' : 'Nenhum alerta registrado.';
+}
+$('bAlLimpa').addEventListener('click', () => { alertas = []; abertos = {}; tabAlertas(); });
+
+function render(){
+  const u = dados[dados.length-1]; if (!u) return;
+  let pior = 0;
+  S.forEach(s => {
+    const v = u[s.k], e = Number.isFinite(v) ? s.a(v) : 0; pior = Math.max(pior, e);
+    const el = $('c-'+s.k); el.className = 'card ' + C[e];
+    el.querySelector('b').textContent = fmt(v, s.d); el.querySelector('.chip').textContent = ROT[e];
+  });
+  $('resumo').className = 'resumo ' + C[pior];
+  $('rtx').textContent = ['Tudo dentro do normal','Atenção: há leituras fora da faixa normal','Crítico: há leituras em nível de risco'][pior];
+  $('hora').textContent = 'Última leitura às ' + u.label;
+  tabela(); tabAlertas(); desenhar();
+}
+
+function tabela(){
+  const ult = dados.slice(-100).reverse();
+  $('tb').innerHTML = ult.map(r => '<tr><td>' + r.label + '</td>' + S.map(s => {
+    const v = r[s.k]; return `<td class="${Number.isFinite(v) ? C[s.a(v)] : ''}">${fmt(v, s.d)}</td>`;
+  }).join('') + '</tr>').join('');
+  $('cont').textContent = dados.length + ' registros guardados (mostrando os 100 mais recentes)';
+}
+
+function desenhar(){
+  const c = $('graf'), x = c.getContext('2d'), dpr = window.devicePixelRatio || 1;
+  const W = c.clientWidth, H = c.clientHeight; c.width = W*dpr; c.height = H*dpr; x.setTransform(dpr,0,0,dpr,0,0);
+  const cs = getComputedStyle(document.documentElement), grade = cs.getPropertyValue('--linha'), txt = cs.getPropertyValue('--suave');
+  const L = 38, R = 10, T = 10, B = 24, w = W-L-R, h = H-T-B, pts = dados.slice(-120), n = pts.length;
+  x.font = '12px Barlow, sans-serif'; x.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++){
+    const y = T + h*i/4; x.strokeStyle = grade; x.lineWidth = 1; x.beginPath(); x.moveTo(L,y); x.lineTo(W-R,y); x.stroke();
+    x.fillStyle = txt; x.textAlign = 'right'; x.fillText((100-25*i)+'%', L-6, y);
+  }
+  if (n < 2){ x.fillStyle = txt; x.textAlign = 'center'; x.fillText('Aguardando dados...', W/2, H/2); return; }
+  S.forEach(s => {
+    x.strokeStyle = s.cor; x.lineWidth = 2; x.lineJoin = 'round'; x.beginPath(); let ini = false;
+    pts.forEach((p,i) => {
+      const v = p[s.k]; if (!Number.isFinite(v)) return;
+      const px = L + w*i/(n-1), py = T + h*(1 - Math.max(0, Math.min(1, (v-s.min)/(s.max-s.min))));
+      ini ? x.lineTo(px,py) : x.moveTo(px,py); ini = true;
+    }); x.stroke();
+  });
+  x.fillStyle = txt; x.textBaseline = 'top'; x.textAlign = 'left'; x.fillText(pts[0].label, L, H-B+6);
+  x.textAlign = 'right'; x.fillText(pts[n-1].label, W-R, H-B+6);
+}
+addEventListener('resize', desenhar);
+
+// ---------- Status ----------
+function status(txt, on){ $('stx').textContent = txt; $('dot').className = 'dot' + (on ? ' on' : ''); }
+setInterval(() => {
+  if ((modo === 'usb' || modo === 'wifi') && ultima && Date.now()-ultima > 10000 && $('dot').classList.contains('on'))
+    status('Conectado, sem dados há ' + Math.round((Date.now()-ultima)/1000) + ' s', true);
+}, 2000);
+
+// ---------- Modos ----------
+let simT = null, simV = {};
+function simular(){
+  const d = {};
+  S.forEach(s => {
+    const [a,b] = s.sim, base = simV[s.k] ?? (a+b)/2;
+    d[s.k] = simV[s.k] = Math.max(a*.9, Math.min(b*1.15, base + (Math.random()-.5)*(b-a)*.25));
+  });
+  registrar(d);
+}
+function pararTudo(){
+  clearInterval(simT); simT = null;
+  if (fecharUSB) fecharUSB(); clearInterval(pollT); pollT = null; $('wBtn').textContent = 'Iniciar leitura';
+}
+function setModo(m){
+  pararTudo(); modo = m;
+  document.querySelectorAll('#modos button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === m));
+  ['usb','wifi'].forEach(p => $('p-'+p).classList.toggle('ativo', p === m));
+  if (m === 'sim'){ status('Modo simulação (valores aleatórios)', true); simular(); simT = setInterval(simular, 1500); }
+  else status('Desconectado', false);
+}
+$('modos').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setModo(b.dataset.m); });
+
+// ---------- USB (Web Serial): lê as linhas que o sketch já imprime ----------
+let fecharUSB = null, atual = {};
+function linha(t){
+  const i = t.indexOf(':'); if (i < 0) return;
+  const nome = t.slice(0,i).trim(), v = parseFloat(t.slice(i+1).replace(',','.'));
+  const s = S.find(s => s.rx.test(nome)); if (!s || !Number.isFinite(v)) return;
+  atual[s.k] = v;
+  if (s.k === 'corrente'){ registrar(atual); atual = {}; }   // corrente é a última linha de cada ciclo
+}
+$('usbBtn').addEventListener('click', async () => {
+  if (fecharUSB){ fecharUSB(); return; }
+  if (!('serial' in navigator)){ status('Este navegador não suporta USB. Use Chrome ou Edge no computador.', false); return; }
+  try {
+    const port = await navigator.serial.requestPort(); await port.open({baudRate:115200});
+    const dec = new TextDecoderStream(), fim = port.readable.pipeTo(dec.writable).catch(()=>{});
+    const rd = dec.readable.getReader(); let buf = '';
+    status('Conectado ao ESP via USB', true); $('usbBtn').textContent = 'Desconectar';
+    fecharUSB = async () => {
+      fecharUSB = null; $('usbBtn').textContent = 'Conectar ESP';
+      try { await rd.cancel(); } catch(e){} try { await fim; } catch(e){} try { await port.close(); } catch(e){}
+      if (modo === 'usb') status('Desconectado', false);
+    };
+    (async () => {
+      try { while (true){ const {value, done} = await rd.read(); if (done) break; buf += value;
+        let k; while ((k = buf.indexOf('\n')) >= 0){ linha(buf.slice(0,k)); buf = buf.slice(k+1); } } } catch(e){}
+      if (fecharUSB) fecharUSB();
+    })();
+  } catch(e){ status('Não foi possível abrir a porta: ' + (e.message || e), false); }
+});
+
+// ---------- Wi-Fi: o ESP envia para /api/leituras e o site consulta ----------
+let pollT = null, ultimoTs = 0;
+async function consultar(){
+  try {
+    const r = await fetch('/api/leituras', {cache:'no-store'}), d = await r.json();
+    if (d && d.ts && d.ts > ultimoTs){
+      ultimoTs = d.ts;
+      if (Date.now() - d.ts < 15000){ registrar(d, null, d.ts); status('Recebendo dados do ESP via Wi-Fi', true); }
+      else status('ESP sem enviar dados recentes', true);
+    } else if (!ultimoTs) status('Conectado ao site, aguardando o ESP enviar...', true);
+  } catch(e){ status('Sem resposta do servidor', false); }
+}
+$('wBtn').addEventListener('click', () => {
+  if (pollT){ clearInterval(pollT); pollT = null; $('wBtn').textContent = 'Iniciar leitura'; status('Desconectado', false); return; }
+  ultimoTs = 0; $('wBtn').textContent = 'Parar'; consultar(); pollT = setInterval(consultar, 2000);
+});
+
+// ---------- Histórico: SD, CSV, limpar ----------
+$('bLog').addEventListener('click', () => $('arq').click());
+$('arq').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    let n = 0; abertos = {};
+    rd.result.split(/\r?\n/).forEach(l => {
+      const p = l.split(',').map(x => parseFloat(x.trim()));
+      if (p.length < 5 || p.slice(0,5).some(x => !Number.isFinite(x))) return;   // pula cabeçalhos
+      registrar({vibracao:p[1], temperatura:p[2], tensao:p[3], corrente:p[4]}, p[0] + ' s (SD)', p[0]*1000); n++;
+    });
+    Object.values(abertos).forEach(a => { a.fimW = 'fim do arquivo'; a.dur = null; }); abertos = {}; tabAlertas();
+    status(n + ' registros carregados do cartão SD', $('dot').classList.contains('on'));
+  };
+  rd.readAsText(f); e.target.value = '';
+});
+$('bCsv').addEventListener('click', () => {
+  const csv = 'Momento,Temperatura(C),Vibracao(g),Tensao(V),Corrente(A)\n' +
+    dados.map(r => [r.label, r.temperatura, r.vibracao, r.tensao, r.corrente].join(',')).join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'historico-esp.csv'; a.click(); URL.revokeObjectURL(a.href);
+});
+$('bLimpa').addEventListener('click', () => { dados = []; $('tb').innerHTML = ''; $('cont').textContent = '0 registros'; desenhar(); });
+
+setModo('sim');
+</script>
+</body>
+</html>
